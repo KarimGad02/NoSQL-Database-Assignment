@@ -32,7 +32,7 @@ router.post('/', async (req, res) => {
   }
 });
 
-// ...existing code for GET routes...
+
 
 // Update post
 router.put('/:id', async (req, res) => {
