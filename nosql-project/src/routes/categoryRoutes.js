@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const Category = require('../models/Category');
 
-// Create category
 router.post('/', async (req, res) => {
   try {
     const category = await Category.create(req.body);
@@ -12,7 +11,6 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Get all categories
 router.get('/', async (req, res) => {
   try {
     const categories = await Category.find().populate('posts');
@@ -22,7 +20,6 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Get category by ID
 router.get('/:id', async (req, res) => {
   try {
     const category = await Category.findById(req.params.id).populate('posts');
@@ -33,7 +30,6 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Update category
 router.put('/:id', async (req, res) => {
   try {
     const category = await Category.findByIdAndUpdate(req.params.id, req.body, { new: true });
@@ -44,7 +40,6 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// Delete category
 router.delete('/:id', async (req, res) => {
   try {
     const category = await Category.findByIdAndDelete(req.params.id);

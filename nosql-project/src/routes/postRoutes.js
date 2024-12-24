@@ -4,17 +4,42 @@ const Post = require('../models/Post');
 const User = require('../models/User');
 const Category = require('../models/Category');
 
-// Create post
+router.get('/', async (req, res) => {
+  try {
+    const posts = await Post.find()
+      .populate('author')
+      .populate('comments')
+      .sort({ createdAt: -1 });
+    res.json(posts);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+router.get('/:id', async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id)
+      .populate('author')
+      .populate('comments');
+    
+    if (!post) {
+      return res.status(404).json({ message: 'Post not found' });
+    }
+    
+    res.json(post);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 router.post('/', async (req, res) => {
   try {
     const post = await Post.create(req.body);
     
-    // Update user's posts array
     await User.findByIdAndUpdate(req.body.author, {
       $push: { posts: post._id }
     });
 
-    // Update category's posts array
     if (req.body.category) {
       await Category.findByIdAndUpdate(req.body.category, {
         $push: { posts: post._id }
@@ -23,7 +48,7 @@ router.post('/', async (req, res) => {
     
     const populatedPost = await Post.findById(post._id)
       .populate('author')
-      .populate('category')
+      .populate('categories')
       .populate('comments');
       
     res.status(201).json(populatedPost);
@@ -32,15 +57,11 @@ router.post('/', async (req, res) => {
   }
 });
 
-// ...existing code for GET routes...
-
-// Update post
 router.put('/:id', async (req, res) => {
   try {
     const oldPost = await Post.findById(req.params.id);
     if (!oldPost) return res.status(404).json({ message: 'Post not found' });
 
-    // Remove post from old category if category is being changed
     if (req.body.category && oldPost.category && req.body.category !== oldPost.category.toString()) {
       await Category.findByIdAndUpdate(oldPost.category, {
         $pull: { posts: oldPost._id }
@@ -49,7 +70,6 @@ router.put('/:id', async (req, res) => {
 
     const post = await Post.findByIdAndUpdate(req.params.id, req.body, { new: true });
     
-    // Add post to new category
     if (req.body.category) {
       await Category.findByIdAndUpdate(req.body.category, {
         $push: { posts: post._id }
@@ -58,7 +78,7 @@ router.put('/:id', async (req, res) => {
 
     const updatedPost = await Post.findById(post._id)
       .populate('author')
-      .populate('category')
+      .populate('categories')
       .populate('comments');
       
     res.json(updatedPost);
@@ -67,18 +87,15 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// Delete post
 router.delete('/:id', async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
     if (!post) return res.status(404).json({ message: 'Post not found' });
 
-    // Remove post from user's posts
     await User.findByIdAndUpdate(post.author, {
       $pull: { posts: post._id }
     });
 
-    // Remove post from category's posts
     if (post.category) {
       await Category.findByIdAndUpdate(post.category, {
         $pull: { posts: post._id }

@@ -3,7 +3,6 @@ const router = express.Router();
 const Comment = require('../models/Comment');
 const Post = require('../models/Post');
 
-// Create comment
 router.post('/', async (req, res) => {
   try {
     const comment = await Comment.create(req.body);
@@ -16,7 +15,6 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Get all comments
 router.get('/', async (req, res) => {
   try {
     const comments = await Comment.find()
@@ -28,7 +26,6 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Get comment by ID
 router.get('/:id', async (req, res) => {
   try {
     const comment = await Comment.findById(req.params.id)
@@ -41,7 +38,6 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Update comment
 router.put('/:id', async (req, res) => {
   try {
     const comment = await Comment.findByIdAndUpdate(req.params.id, req.body, { new: true });
@@ -52,7 +48,6 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// Delete comment
 router.delete('/:id', async (req, res) => {
   try {
     const comment = await Comment.findByIdAndDelete(req.params.id);
