@@ -6,15 +6,13 @@ const Profile = require('../models/Profile');
 router.post('/', async (req, res) => {
   try {
     const user = await User.create(req.body);
-    
-    // Create associated profile
+  
     const profile = await Profile.create({ 
       user: user._id,
       bio: req.body.bio || '',
       location: req.body.location || ''
     });
 
-    // Link profile to user
     user.profile = profile._id;
     await user.save();
 
